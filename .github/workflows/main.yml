@@ -1,0 +1,86 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Source Branch
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+        persist-credentials: true
+        clean: true
+        fetch-depth: 0
+
+    - name: Run build script
+      run: echo "Building from branch ${{ github.event.pull_request.head.ref }}..."
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout Source Branch
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+        persist-credentials: true
+        clean: true
+        fetch-depth: 0
+
+    - name: Run tests script
+      run: echo "Running tests for branch ${{ github.event.pull_request.head.ref }}..."
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - name: Checkout Source Branch
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+        persist-credentials: true
+        clean: true
+        fetch-depth: 0
+
+    - name: Run deploy script
+      run: echo "Deploying code from branch ${{ github.event.pull_request.head.ref }}..."
+
+  postdeploytest:
+    runs-on: ubuntu-latest
+    needs: deploy
+
+    steps:
+    - name: Checkout Source Branch
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+        persist-credentials: true
+        clean: true
+        fetch-depth: 0
+
+    - name: Run post-deploy tests script
+      run: echo "Running post-deploy tests for branch ${{ github.event.pull_request.head.ref }}..."
+
+  finalize:
+    runs-on: ubuntu-latest
+    needs: postdeploytest
+
+    steps:
+    - name: Checkout Source Branch
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+        persist-credentials: true
+        clean: true
+        fetch-depth: 0
+
+    - name: Run finalize script
+      run: echo "Finalizing for branch ${{ github.event.pull_request.head.ref }}..."
